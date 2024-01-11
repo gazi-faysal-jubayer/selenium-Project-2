@@ -101,6 +101,14 @@ def main(option_to_select):
             
             sub()
             pages.add(active_page_number)
+            
+            # Find the <ul> element with class "pagination"
+            pagination_ul = driver.find_element(By.CLASS_NAME,"pagination")
+
+            # Find all <li> elements within the <ul> using XPath
+            li_elements = pagination_ul.find_elements(By.XPATH,".//li")
+            if len(li_elements)==1:
+                break
 
             # Construct the XPath for the next page
             next_page_xpath = f"//a[normalize-space()='{int(active_page_number) + 1}']"
@@ -120,10 +128,10 @@ def main(option_to_select):
 
         time.sleep(10)
 
-main('Ambulatory Care')
+# main('Ambulatory Care')
 
-# for i in range(len(li)):
-#     main(li[i])
+for i in range(len(li)):
+    main(li[i])
 
 # Print the collected data
 for provider in providers_data:
