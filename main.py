@@ -93,28 +93,30 @@ def main(option_to_select):
     if len(li_elements) == 0:
         return
 
-    pages = set()
+    pages = []
 
     while True:
         try:
             # Find the active page number
             active_page_number = driver.find_element(By.CSS_SELECTOR, "li.active a.page").text
+            if active_page_number in pages:
+                break
             
             sub()
-            pages.add(active_page_number)
+            pages.append(active_page_number)
             
-            # Find the <ul> element with class "pagination"
-            pagination_ul = driver.find_element(By.CLASS_NAME,"pagination")
+            # # Find the <ul> element with class "pagination"
+            # pagination_ul = driver.find_element(By.CLASS_NAME,"pagination")
 
-            # Find all <li> elements within the <ul> using XPath
-            li_elements = pagination_ul.find_elements(By.XPATH,".//li")
-            if len(li_elements)==1:
-                break
+            # # Find all <li> elements within the <ul> using XPath
+            # li_elements = pagination_ul.find_elements(By.XPATH,".//li")
+            # if len(li_elements)==1:
+            #     break
 
-            # Construct the XPath for the next page
-            next_page_xpath = f"//a[normalize-space()='{int(active_page_number) + 1}']"
+            # # Construct the XPath for the next page
+            next_page_xpath = "//div[@class='btn-next']"
 
-            # Check if the next page element exists
+            # # Check if the next page element exists
             next_page_element = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, next_page_xpath)))
 
             driver.execute_script("arguments[0].click();", next_page_element)
@@ -128,11 +130,12 @@ def main(option_to_select):
             break
 
         time.sleep(10)
+        
+x = 'Ambulatory Care'
+main(x)
 
-# main('Ambulatory Care')
-
-for i in range(len(li)):
-    main(li[i])
+# for i in range(len(li)):
+#     main(li[i])
 
 # Print the collected data
 for provider in providers_data:
@@ -140,7 +143,7 @@ for provider in providers_data:
 print(len(providers_data))
 
 # Specify the CSV file path
-csv_file_path = 'output.csv'
+csv_file_path = f'output-{x}.csv'
 
 # Open the CSV file in write mode
 with open(csv_file_path, 'w', newline='', encoding='utf-8') as csv_file:
