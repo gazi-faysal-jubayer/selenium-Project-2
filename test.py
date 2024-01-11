@@ -83,8 +83,6 @@ def main(option_to_select):
     dropdown.select_by_visible_text(option_to_select)
     # Wait until the spinner disappears
     WebDriverWait(driver, 10).until(EC.invisibility_of_element_located((By.ID, 'sb_loading')))
-    # Wait until the spinner disappears
-    WebDriverWait(driver, 10).until(EC.invisibility_of_element_located((By.ID, 'sb_loading')))
 
     # Find the <ul> element
     ul_element = driver.find_element(By.XPATH, "//ul[@class='main_listing_provider list']")
