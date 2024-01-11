@@ -43,25 +43,28 @@ def sub():
         li_element = li_elements[i]
         provider_data = {}
         
-        title = li_element.find_element(By.XPATH, './/b[@class="company_name"]')
-        provider_data['Title'] = title.text
+        title = li_element.find_element(By.XPATH, './/b[@class="company_name"]').text
+        # provider_data['Title'] = title
         
         div_element = li_element.find_element(By.CLASS_NAME, 'list_cont_box')    
-        stitle = div_element.find_elements(By.TAG_NAME, 'p')[0]
-        provider_data['Subtitle'] = stitle.text
+        stitle = div_element.find_elements(By.TAG_NAME, 'p')[0].text
+        # provider_data['Subtitle'] = stitle
         
         cs = div_element.find_elements(By.TAG_NAME, 'p')[1]
         city = cs.text.split(',')[0]
-        provider_data['City'] = city
+        # provider_data['City'] = city
         
         street = cs.text.split(', ')[1].split(' ')[0]
-        provider_data['Street'] = street
+        # provider_data['Street'] = street
         
         zip = cs.text.split(', ')[1].split(' ')
         if len(zip)==2:
-            provider_data['Zip'] = zip[1]
+            zip_ = zip[1]
+            # provider_data['Zip'] = zip[1]
         else:
-            provider_data['Zip'] = 'N/A'
+            # provider_data['Zip'] = 'N/A'
+            zip_ = 'N/A'
+            
         
         el = li_element.find_element("xpath",".//p[@class='view_more_eye']")
         driver.execute_script("arguments[0].click();", el)
@@ -69,15 +72,31 @@ def sub():
         WebDriverWait(driver,20).until(EC.presence_of_all_elements_located((By.XPATH,"//*[@id='sb_loading' and @style='display: none;']")))
 
         modal_validate = WebDriverWait(driver,20).until(EC.presence_of_all_elements_located((By.XPATH,"//h3[text()='Accreditation Details']")))
+        accrations = driver.find_elements("xpath","//div[@class='more_accrediation_detail']/div")
         
-        provider_data['Date'] = driver.find_element("xpath","//p[@class='start_end_date']").text.replace('Date: ', '')
-        provider_data['Program'] = driver.find_element("xpath","//div[@id='TB_window']//p[2]").text.replace('Program: ', '')
-        provider_data['Services'] = driver.find_element("xpath","//b[text()='Service: ']/parent::p").text.replace('Service: ', '')
+        for acc in accrations:
+            date = acc.find_element("xpath",".//b[text()='Date: ']/parent::p").text
+            program = acc.find_element("xpath",".//b[text()='Program: ']/parent::p").text
+            services = acc.find_element("xpath",".//b[text()='Service: ']/parent::p").text
+            provider_data = {
+                # 'cat_no':cat_no,
+                'Title': title,
+                'Subtitle':stitle,
+                'City':city,
+                'Zip':zip_,
+                'Date':date,
+                'Program':program,
+                'Services':services
+            }
+            providers_data.append(provider_data)
+        # provider_data['Date'] = driver.find_element("xpath","//p[@class='start_end_date']").text.replace('Date: ', '')
+        # provider_data['Program'] = driver.find_element("xpath","//div[@id='TB_window']//p[2]").text.replace('Program: ', '')
+        # provider_data['Services'] = driver.find_element("xpath","//b[text()='Service: ']/parent::p").text.replace('Service: ', '')
 
         close_btn = driver.find_element("xpath","//button[@id='TB_closeWindowButton']")
         close_btn.click()
         
-        providers_data.append(provider_data)
+        # providers_data.append(provider_data)
     
 
 def main(option_to_select):
@@ -131,7 +150,7 @@ def main(option_to_select):
 
         time.sleep(10)
         
-x = 'Ambulatory Care'
+x = 'Behavioral Health'
 main(x)
 
 # for i in range(len(li)):
