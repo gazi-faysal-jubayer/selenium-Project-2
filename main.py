@@ -3,6 +3,7 @@ from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import csv
 
 # Opening website
 driver = webdriver.Chrome()
@@ -35,7 +36,8 @@ ul_element = driver.find_element(By.XPATH, "//ul[@class='main_listing_provider l
 # Find all <li> elements under the <ul>
 li_elements = ul_element.find_elements(By.TAG_NAME, 'li')
 
-for li_element in li_elements:
+for i in range(len(li_elements)):
+    li_element = li_elements[i]
     provider_data = {}
     
     title = li_element.find_element(By.XPATH, './/b[@class="company_name"]')
@@ -49,14 +51,47 @@ for li_element in li_elements:
     city = cs.text.split(',')[0]
     provider_data['City'] = city
     
-    street = cs.text.split(', ')[1]
+    street = cs.text.split(', ')[1].split(' ')[0]
     provider_data['Street'] = street
+    
+    zip = cs.text.split(', ')[1].split(' ')[1]
+    provider_data['Zip'] = zip
+    
+    el = li_element.find_element("xpath",".//p[@class='view_more_eye']")
+    driver.execute_script("arguments[0].click();", el)
+    WebDriverWait(driver,20).until(EC.presence_of_all_elements_located((By.XPATH,"//*[@id='sb_loading' and @style='display: block;']")))
+    WebDriverWait(driver,20).until(EC.presence_of_all_elements_located((By.XPATH,"//*[@id='sb_loading' and @style='display: none;']")))
+
+    modal_validate = WebDriverWait(driver,20).until(EC.presence_of_all_elements_located((By.XPATH,"//h3[text()='Accreditation Details']")))
+    
+    provider_data['Date'] = driver.find_element("xpath","//p[@class='start_end_date']").text.replace('Date: ', '')
+    provider_data['Program'] = driver.find_element("xpath","//div[@id='TB_window']//p[2]").text.replace('Program: ', '')
+    provider_data['Services'] = driver.find_element("xpath","//b[text()='Service: ']/parent::p").text.replace('Service: ', '')
+
+    close_btn = driver.find_element("xpath","//button[@id='TB_closeWindowButton']")
+    close_btn.click()
     
     providers_data.append(provider_data)
 
 # Print the collected data
 for provider in providers_data:
     print(provider)
+
+# Specify the CSV file path
+csv_file_path = 'output.csv'
+
+# Open the CSV file in write mode
+with open(csv_file_path, 'w', newline='', encoding='utf-8') as csv_file:
+    # Create a CSV writer object
+    csv_writer = csv.DictWriter(csv_file, fieldnames=providers_data[0].keys())
+
+    # Write the header
+    csv_writer.writeheader()
+
+    # Write the data rows
+    csv_writer.writerows(providers_data)
+
+print(f'CSV file "{csv_file_path}" has been created.')
 
 # Close the browser window
 driver.quit()
